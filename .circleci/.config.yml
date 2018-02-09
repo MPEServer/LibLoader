@@ -44,4 +44,4 @@ jobs:
           path: target/LibLoader-1.0-SNAPSHOT.jar
 
       - store_artifacts:
-path: target/LibLoader-1.0-SNAPSHOT-jar-with-dependencies.jar
+          path: target/LibLoader-1.0-SNAPSHOT.jar
