@@ -5,10 +5,10 @@ import cn.nukkit.plugin.PluginBase;
 import tech.teslex.mpes.ll.commands.LibCommand;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.LinkedList;
@@ -22,14 +22,17 @@ public class LibLoader extends PluginBase {
 		return libraries;
 	}
 
-	private void loadLib(Library library) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, URISyntaxException, MalformedURLException {
+	public static void loadLib(Library library) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, MalformedURLException {
 
 		URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
 		URL url = library.file().toURI().toURL();
 
-		for (URL l : loader.getURLs())
-			if (l.equals(url))
+		for (URL l : loader.getURLs()) {
+			if (l.equals(url)) {
+				libraries.add(library);
 				return;
+			}
+		}
 
 		Server.getInstance().getLogger().info("Loading lib: " + library.file().getName());
 
@@ -41,7 +44,22 @@ public class LibLoader extends PluginBase {
 
 	}
 
-	private void loadAllInDir(File dir) throws URISyntaxException, NoSuchMethodException, MalformedURLException, IllegalAccessException, InvocationTargetException {
+//	private void loadLibX(Library library) throws IOException, ClassNotFoundException {
+//		File file = library.file();
+//
+//		URLClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()});
+//
+//		JarInputStream jarFile = new JarInputStream(new FileInputStream(file));
+//		JarEntry jarEntry;
+//
+//		while ((jarEntry = jarFile.getNextJarEntry()) != null)
+//			if (jarEntry.getName().endsWith(".class")) {
+//				classLoader.loadClass(jarEntry.getName().replaceAll("/", "\\."));
+//				System.out.println(jarEntry.getName().replaceAll("/", "\\."));
+//			}
+//	}
+
+	private void loadAllInDir(File dir) throws NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
 
 		if (dir.isDirectory()) {
 			File[] libs = dir.listFiles((d, name) -> name.endsWith(".jar"));
@@ -64,7 +82,7 @@ public class LibLoader extends PluginBase {
 
 		try {
 			loadAllInDir(libs);
-		} catch (URISyntaxException | NoSuchMethodException | MalformedURLException | InvocationTargetException | IllegalAccessException e) {
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
 
